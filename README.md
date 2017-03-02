@@ -1,4 +1,6 @@
-"# QJsonTableModel" 
+"# QJsonTableModel" .
+this works on Qt4+vs2013, and jsoncpp library was build by vs2013, so if you use other version, you may need rebuild jsoncpp lib. 
+
 thanks for  poulh .
 if you are using qJsonDocument, check his git : [https://github.com/poulh/qjsontablemodel](https://github.com/poulh/qjsontablemodel)
 ```c++
