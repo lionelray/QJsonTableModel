@@ -7,10 +7,10 @@ QJsonTableModel::QJsonTableModel(const QJsonTableModel::Header& header, QObject 
 
 }
 
-bool QJsonTableModel::setJson(const Json::Value &array)
+bool QJsonTableModel::setJson(Document &array)
 {
     beginResetModel();
-    m_json = array;
+    m_json.Swap(array);
     endResetModel();
     return true;
 }
@@ -25,7 +25,7 @@ QVariant QJsonTableModel::headerData(int section, Qt::Orientation orientation, i
     switch(orientation)
     {
     case Qt::Horizontal:
-        return m_header[section]["title"];
+        return QString::fromStdString(m_header[section]["title"]);
     case Qt::Vertical:
         //return section + 1;
         return QVariant();
@@ -38,7 +38,11 @@ QVariant QJsonTableModel::headerData(int section, Qt::Orientation orientation, i
 int QJsonTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return m_json.size();
+    if (!m_json.IsArray())
+    {
+        return 0;
+    }
+    return m_json.Size();
 }
 
 int QJsonTableModel::columnCount(const QModelIndex &parent) const
@@ -47,11 +51,9 @@ int QJsonTableModel::columnCount(const QModelIndex &parent) const
     return m_header.size();
 }
 
-
-Json::Value QJsonTableModel::getJsonObject(const QModelIndex &index) const
+const Value &QJsonTableModel::getJsonObject(const QModelIndex &index) const
 {
-    const Json::Value& value = m_json[index.row()];
-    return value;
+    return m_json[index.row()];
 }
 
 QVariant QJsonTableModel::data(const QModelIndex &index, int role ) const
@@ -60,19 +62,22 @@ QVariant QJsonTableModel::data(const QModelIndex &index, int role ) const
     {
     case Qt::DisplayRole:
     {
-        Json::Value obj = getJsonObject(index);
-        const std::string& key = m_header[index.column()]["index"].toStdString();
-        if( !Json::Value(obj[key]).isNull())
+        const Value &obj = getJsonObject(index);
+        if(obj.IsObject())
         {
-            Json::Value  v = obj[key];
+            const Value &v = obj[m_header[index.column()]["index"].c_str()];
 
-            if(v.isString())
+            if(v.IsString())
             {
-                return QString::fromStdString(v.asString());
+                return QString::fromLocal8Bit(v.GetString());
             }
-            else if(v.isDouble())
+            else if(v.IsDouble())
             {
-                return QString::number(v.asDouble(), 'g', 32); // 具体显示格式和精度视情况而定
+                return v.GetDouble();
+            }
+            else if(v.IsInt())
+            {
+                return qint64(v.GetInt());
             }
             else
             {

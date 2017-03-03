@@ -6,7 +6,11 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QDebug>
+#include <time.h>
 
+#include "rapidjson/document.h"
+
+using namespace rapidjson;
 using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -45,18 +49,19 @@ void MainWindow::init()
     //QString lineStr = readJson("qJson.txt"); // 从文件读取json
     QString lineStr = "[{\"series\":\"Black Sails\",\"season\":357001177406901,\"episode\":1,\"title\":\"I.\",\"air_date\":\"2014-01-25\"},{\"series\":\"Black Sails\",\"season\":1,\"episode\":2,\"title\":\"II.\",\"air_date\":\"2014-02-01\"}]";
 
-    Json::Reader read;
-    Json::Value jsonvalue;
-
     std::string strMeterData = lineStr.toStdString();
 
-    /// Json格式字符串解析
-    if(!read.parse(strMeterData, jsonvalue))
+    clock_t start;
+    Document doc;
+    start=clock();
+    doc.Parse(strMeterData.c_str());
+    if (doc.HasParseError() || !doc.IsArray())
     {
-        qDebug() << "jSon failed!";
+        qDebug() << "get json data err!";
+        return;
     }
-
-    m_pEpisodes->setJson(jsonvalue);
+    qDebug() << "Json Parsing time: " << double(clock() - start);
+    m_pEpisodes->setJson(doc);
 }
 
 QString MainWindow::readJson(QString sPath)

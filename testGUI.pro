@@ -7,7 +7,7 @@
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
+CONFIG += c++11
 TARGET = testGUI
 TEMPLATE = app
 
@@ -22,7 +22,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 INCLUDEPATH += QJsonTableModel \
-              jsoncpp-1.7.3/include
+              jsoncpp-1.7.3/include \
+              rapidjson/include
 
 DEPENDPATH += jsoncpp-1.7.3/lib
 

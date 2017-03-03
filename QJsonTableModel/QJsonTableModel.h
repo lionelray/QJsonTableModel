@@ -5,18 +5,20 @@
 #include <QVector>
 #include <QMap>
 #include <QAbstractTableModel>
-#include <json/json.h>
+#include "rapidjson/document.h"
+
+using namespace rapidjson;
 
 class QJsonTableModel : public QAbstractTableModel
 {
 public:
-    typedef QMap<QString,QString> Heading;
+    typedef QMap<std::string, std::string> Heading;
     typedef QVector<Heading> Header;
     QJsonTableModel(const Header& header, QObject * parent = 0);
 
-    bool setJson(const Json::Value & array);
+    bool setJson(Document &array);
 
-    virtual Json::Value getJsonObject(const QModelIndex &index) const;
+    virtual const Value &getJsonObject(const QModelIndex &index) const;
 
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -25,7 +27,7 @@ public:
 
 private:
     Header m_header;
-    Json::Value m_json;
+    Document m_json;
 };
 
 #endif // QJSONTABLEMODEL_H
